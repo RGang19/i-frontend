@@ -12,9 +12,11 @@ export default function Profile() {
     const { coins, coinsEarnedToday, adsWatchedToday, addCoins } = useCoins();
     const { user, isAuthenticated } = useAuth();
     const [savedVideos, setSavedVideos] = useState([]);
+    const [myUploads, setMyUploads] = useState([]);
     const [loadingSaved, setLoadingSaved] = useState(true);
+    const [loadingUploads, setLoadingUploads] = useState(true);
     const [selectedVideo, setSelectedVideo] = useState(null);
-    const [activeTab, setActiveTab] = useState('saved'); // 'saved' or 'liked'
+    const [activeTab, setActiveTab] = useState('saved');
 
     const videoCoins = Math.floor(coins * 0.4);
     const adCoins = Math.floor(coins * 0.6);
@@ -76,6 +78,57 @@ export default function Profile() {
         };
 
         fetchSavedVideos();
+    }, []);
+
+    // Fetch user uploads
+    useEffect(() => {
+        const fetchMyUploads = async () => {
+            try {
+                setLoadingUploads(true);
+                const folderId = '1qBOdBEk60VTBpHfEGNX3BeLNFrnfF9ur';
+                const response = await fetch(`${API_URL}/files?folderId=${folderId}&limit=50`);
+                const data = await response.json();
+
+                if (data.success) {
+                    const uploads = data.data
+                        .filter(file =>
+                            file.mimeType?.startsWith('video/') ||
+                            file.mimeType?.startsWith('image/')
+                        )
+                        .map(file => {
+                            let rawName = file.name.replace(/\.[^/.]+$/, '');
+                            let title = rawName;
+                            let category = 'General';
+                            const categoryMatch = rawName.match(/^\[([^\]]+)\]\s*/);
+                            if (categoryMatch) {
+                                category = categoryMatch[1];
+                                title = rawName.replace(/^\[[^\]]+\]\s*/, '');
+                            }
+                            return {
+                                id: file.id,
+                                title: title,
+                                category: category,
+                                channel: 'You',
+                                channelInitial: 'Y',
+                                views: Math.floor(Math.random() * 1000) + 'K',
+                                date: formatDate(file.createdTime),
+                                duration: file.mimeType?.startsWith('video/') ? '00:00' : 'Image',
+                                coins: 5,
+                                thumbnail: `https://drive.google.com/thumbnail?id=${file.id}&sz=w640`,
+                                webViewLink: file.webViewLink,
+                                mimeType: file.mimeType,
+                            };
+                        });
+                    setMyUploads(uploads);
+                }
+            } catch (error) {
+                console.error('Error fetching uploads:', error);
+            } finally {
+                setLoadingUploads(false);
+            }
+        };
+
+        fetchMyUploads();
     }, []);
 
     const handleVideoClick = (video) => {
@@ -141,41 +194,83 @@ export default function Profile() {
                             >
                                 Saved ({savedVideos.length})
                             </button>
+                            <button
+                                className={`tab-btn ${activeTab === 'uploads' ? 'active' : ''}`}
+                                onClick={() => setActiveTab('uploads')}
+                            >
+                                My Uploads ({myUploads.length})
+                            </button>
                         </div>
                     </div>
 
-                    {loadingSaved ? (
-                        <div className="loading-saved">
-                            <div className="loading-spinner"></div>
-                            <p>Loading saved videos...</p>
-                        </div>
-                    ) : savedVideos.length === 0 ? (
-                        <div className="empty-saved">
-                            <div className="empty-icon">📚</div>
-                            <h3>No saved videos yet</h3>
-                            <p>Save videos while watching to find them here later!</p>
-                            <Link to="/videos" className="browse-btn">Browse Videos</Link>
-                        </div>
-                    ) : (
-                        <div className="saved-grid">
-                            {savedVideos.map(video => (
-                                <div key={video.id} className="saved-video-wrapper">
-                                    <VideoCard
-                                        video={video}
-                                        onClick={() => handleVideoClick(video)}
-                                    />
-                                    <button
-                                        className="remove-saved-btn"
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            handleRemoveSaved(video.id);
-                                        }}
-                                    >
-                                        ✕ Remove
-                                    </button>
+                    {/* Saved Videos Tab */}
+                    {activeTab === 'saved' && (
+                        <>
+                            {loadingSaved ? (
+                                <div className="loading-saved">
+                                    <div className="loading-spinner"></div>
+                                    <p>Loading saved videos...</p>
                                 </div>
-                            ))}
-                        </div>
+                            ) : savedVideos.length === 0 ? (
+                                <div className="empty-saved">
+                                    <div className="empty-icon">📚</div>
+                                    <h3>No saved videos yet</h3>
+                                    <p>Save videos while watching to find them here later!</p>
+                                    <Link to="/videos" className="browse-btn">Browse Videos</Link>
+                                </div>
+                            ) : (
+                                <div className="saved-grid">
+                                    {savedVideos.map(video => (
+                                        <div key={video.id} className="saved-video-wrapper">
+                                            <VideoCard
+                                                video={video}
+                                                onClick={() => handleVideoClick(video)}
+                                            />
+                                            <button
+                                                className="remove-saved-btn"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleRemoveSaved(video.id);
+                                                }}
+                                            >
+                                                ✕ Remove
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </>
+                    )}
+
+                    {/* My Uploads Tab */}
+                    {activeTab === 'uploads' && (
+                        <>
+                            {loadingUploads ? (
+                                <div className="loading-saved">
+                                    <div className="loading-spinner"></div>
+                                    <p>Loading your uploads...</p>
+                                </div>
+                            ) : myUploads.length === 0 ? (
+                                <div className="empty-saved">
+                                    <div className="empty-icon">📤</div>
+                                    <h3>No uploads yet</h3>
+                                    <p>Share your content with the world!</p>
+                                    <Link to="/upload" className="browse-btn">Upload Video</Link>
+                                </div>
+                            ) : (
+                                <div className="saved-grid">
+                                    {myUploads.map(video => (
+                                        <div key={video.id} className="saved-video-wrapper">
+                                            <VideoCard
+                                                video={video}
+                                                onClick={() => handleVideoClick(video)}
+                                            />
+                                            <span className="upload-category">{video.category}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </>
                     )}
                 </section>
 
@@ -309,4 +404,18 @@ export default function Profile() {
             )}
         </div>
     );
+}
+
+function formatDate(dateString) {
+    if (!dateString) return 'Recently';
+    const date = new Date(dateString);
+    const now = new Date();
+    const diff = now - date;
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+
+    if (days === 0) return 'Today';
+    if (days === 1) return 'Yesterday';
+    if (days < 7) return `${days} days ago`;
+    if (days < 30) return `${Math.floor(days / 7)} weeks ago`;
+    return `${Math.floor(days / 30)} months ago`;
 }

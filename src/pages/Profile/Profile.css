@@ -152,6 +152,19 @@
     opacity: 1;
 }
 
+.upload-category {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    padding: 4px 10px;
+    background: var(--gradient-premium);
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: white;
+    z-index: 10;
+}
+
 .loading-saved {
     display: flex;
     flex-direction: column;
