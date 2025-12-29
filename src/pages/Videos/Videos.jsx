@@ -8,6 +8,29 @@ const API_URL = 'https://i-backend-nve4.onrender.com/api';
 
 const CATEGORIES = ['All', 'Gaming', 'Music', 'Movies', 'Live', 'Tech', 'Sports', 'News'];
 
+// Keywords for each category to help categorize videos
+const CATEGORY_KEYWORDS = {
+    Gaming: ['game', 'gaming', 'gamer', 'play', 'gameplay', 'fortnite', 'minecraft', 'cod', 'pubg', 'gta', 'esports', 'stream'],
+    Music: ['music', 'song', 'sing', 'singer', 'band', 'concert', 'audio', 'beat', 'melody', 'album', 'track', 'remix', 'dj'],
+    Movies: ['movie', 'film', 'cinema', 'trailer', 'scene', 'actor', 'hollywood', 'bollywood', 'documentary', 'series', 'netflix'],
+    Live: ['live', 'stream', 'streaming', 'broadcast', 'real-time', 'vlog', 'podcast'],
+    Tech: ['tech', 'technology', 'code', 'coding', 'programming', 'developer', 'software', 'hardware', 'ai', 'app', 'phone', 'computer', 'laptop', 'review'],
+    Sports: ['sport', 'sports', 'football', 'soccer', 'basketball', 'cricket', 'tennis', 'golf', 'match', 'score', 'team', 'player', 'league'],
+    News: ['news', 'breaking', 'report', 'update', 'latest', 'headline', 'politics', 'economy', 'world']
+};
+
+// Detect category based on video title
+function detectCategory(title) {
+    const lowerTitle = title.toLowerCase();
+
+    for (const [category, keywords] of Object.entries(CATEGORY_KEYWORDS)) {
+        if (keywords.some(keyword => lowerTitle.includes(keyword))) {
+            return category;
+        }
+    }
+    return 'All'; // Default category if no match
+}
+
 export default function Videos() {
     const [videos, setVideos] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -33,21 +56,24 @@ export default function Videos() {
                             file.mimeType?.startsWith('video/') ||
                             file.mimeType?.startsWith('image/')
                         )
-                        .map(file => ({
-                            id: file.id,
-                            title: file.name.replace(/\.[^/.]+$/, ''), // Remove extension
-                            channel: 'I_tube Creator',
-                            channelInitial: 'I',
-                            views: Math.floor(Math.random() * 1000) + 'K',
-                            date: formatDate(file.createdTime),
-                            duration: file.mimeType?.startsWith('video/') ? '00:00' : 'Image',
-                            coins: 5,
-                            // Use Google Drive thumbnail for all files
-                            thumbnail: `https://drive.google.com/thumbnail?id=${file.id}&sz=w640`,
-                            webViewLink: file.webViewLink,
-                            webContentLink: file.webContentLink,
-                            mimeType: file.mimeType,
-                        }));
+                        .map(file => {
+                            const title = file.name.replace(/\.[^/.]+$/, '');
+                            return {
+                                id: file.id,
+                                title: title,
+                                channel: 'I_tube Creator',
+                                channelInitial: 'I',
+                                views: Math.floor(Math.random() * 1000) + 'K',
+                                date: formatDate(file.createdTime),
+                                duration: file.mimeType?.startsWith('video/') ? '00:00' : 'Image',
+                                coins: 5,
+                                thumbnail: `https://drive.google.com/thumbnail?id=${file.id}&sz=w640`,
+                                webViewLink: file.webViewLink,
+                                webContentLink: file.webContentLink,
+                                mimeType: file.mimeType,
+                                category: detectCategory(title),
+                            };
+                        });
 
                     setVideos(mediaFiles);
                 }
@@ -61,10 +87,15 @@ export default function Videos() {
         fetchVideos();
     }, []);
 
-    const filteredVideos = videos.filter(video =>
-        video.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        video.channel.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    // Filter by search AND category
+    const filteredVideos = videos.filter(video => {
+        const matchesSearch = video.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            video.channel.toLowerCase().includes(searchQuery.toLowerCase());
+
+        const matchesCategory = activeCategory === 'All' || video.category === activeCategory;
+
+        return matchesSearch && matchesCategory;
+    });
 
     const handleVideoClick = (video) => {
         setSelectedVideo(video);
@@ -76,6 +107,12 @@ export default function Videos() {
 
     const handleEarnCoins = (amount) => {
         addCoins(amount, 'video');
+    };
+
+    // Get video count for each category
+    const getCategoryCount = (cat) => {
+        if (cat === 'All') return videos.length;
+        return videos.filter(v => v.category === cat).length;
     };
 
     return (
@@ -103,6 +140,9 @@ export default function Videos() {
                             onClick={() => setActiveCategory(cat)}
                         >
                             {cat}
+                            {getCategoryCount(cat) > 0 && (
+                                <span className="category-count">{getCategoryCount(cat)}</span>
+                            )}
                         </button>
                     ))}
                 </div>
@@ -130,8 +170,13 @@ export default function Videos() {
                 {!loading && filteredVideos.length === 0 && (
                     <div className="empty-state">
                         <div className="empty-icon">📹</div>
-                        <h3>No videos yet</h3>
-                        <p>Upload your first video to get started!</p>
+                        <h3>{activeCategory === 'All' ? 'No videos yet' : `No ${activeCategory} videos`}</h3>
+                        <p>{activeCategory === 'All' ? 'Upload your first video to get started!' : 'Try another category or upload videos with related tags.'}</p>
+                        {activeCategory !== 'All' && (
+                            <button className="reset-filter-btn" onClick={() => setActiveCategory('All')}>
+                                Show All Videos
+                            </button>
+                        )}
                     </div>
                 )}
 

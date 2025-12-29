@@ -82,6 +82,35 @@
     color: var(--dark-bg);
 }
 
+.category-count {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.75rem;
+    margin-left: 6px;
+}
+
+.category-btn.active .category-count {
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.reset-filter-btn {
+    margin-top: 15px;
+    padding: 12px 24px;
+    background: var(--gradient-primary);
+    border: none;
+    border-radius: 25px;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.reset-filter-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 15px rgba(255, 8, 68, 0.4);
+}
+
 /* Earning Banner */
 .earning-banner {
     background: var(--gradient-videos);
