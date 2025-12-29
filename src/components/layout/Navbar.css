@@ -112,6 +112,39 @@
     transform: scale(1.1);
 }
 
+/* Auth Buttons */
+.auth-btn {
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    border: none;
+}
+
+.login-btn {
+    background: var(--gradient-primary);
+    color: white;
+}
+
+.login-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 15px rgba(255, 8, 68, 0.4);
+}
+
+.logout-btn {
+    background: transparent;
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+}
+
+.logout-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+    border-color: var(--primary-red);
+}
+
 @media (max-width: 768px) {
     .navbar {
         padding: 0 15px;
@@ -119,5 +152,10 @@
 
     .nav-center {
         display: none;
+    }
+
+    .auth-btn {
+        padding: 6px 12px;
+        font-size: 0.8rem;
     }
 }

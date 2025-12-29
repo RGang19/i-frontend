@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { CoinProvider } from './context/CoinContext';
+import { AuthProvider } from './context/AuthContext';
 import Navbar from './components/layout/Navbar';
 import Home from './pages/Home/Home';
 import Videos from './pages/Videos/Videos';
@@ -11,19 +12,21 @@ import './index.css';
 
 function App() {
   return (
-    <CoinProvider>
-      <Router>
-        <Navbar />
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/videos" element={<Videos />} />
-          <Route path="/ads" element={<Ads />} />
-          <Route path="/premium" element={<Premium />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/upload" element={<Upload />} />
-        </Routes>
-      </Router>
-    </CoinProvider>
+    <AuthProvider>
+      <CoinProvider>
+        <Router>
+          <Navbar />
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/videos" element={<Videos />} />
+            <Route path="/ads" element={<Ads />} />
+            <Route path="/premium" element={<Premium />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/upload" element={<Upload />} />
+          </Routes>
+        </Router>
+      </CoinProvider>
+    </AuthProvider>
   );
 }
 
