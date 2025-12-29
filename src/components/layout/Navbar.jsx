@@ -77,6 +77,30 @@ export default function Navbar() {
                 </div>
             </nav>
 
+            {/* Mobile Bottom Navigation */}
+            <nav className="mobile-nav">
+                <Link to="/videos" className={`mobile-nav-item ${location.pathname === '/videos' ? 'active' : ''}`}>
+                    <span className="mobile-nav-icon">🎬</span>
+                    <span className="mobile-nav-label">Videos</span>
+                </Link>
+                <Link to="/ads" className={`mobile-nav-item ${location.pathname === '/ads' ? 'active' : ''}`}>
+                    <span className="mobile-nav-icon">💰</span>
+                    <span className="mobile-nav-label">Earn</span>
+                </Link>
+                <Link to="/upload" className={`mobile-nav-item upload ${location.pathname === '/upload' ? 'active' : ''}`}>
+                    <span className="mobile-nav-icon">➕</span>
+                    <span className="mobile-nav-label">Upload</span>
+                </Link>
+                <Link to="/premium" className={`mobile-nav-item ${location.pathname === '/premium' ? 'active' : ''}`}>
+                    <span className="mobile-nav-icon">👑</span>
+                    <span className="mobile-nav-label">Premium</span>
+                </Link>
+                <Link to="/profile" className={`mobile-nav-item ${location.pathname === '/profile' ? 'active' : ''}`}>
+                    <span className="mobile-nav-icon">👤</span>
+                    <span className="mobile-nav-label">Profile</span>
+                </Link>
+            </nav>
+
             <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
         </>
     );
