@@ -1,0 +1,438 @@
+.home {
+    min-height: 100vh;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Animated Background */
+.bg-animation {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.gradient-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(100px);
+    opacity: 0.5;
+    animation: float 20s infinite ease-in-out;
+}
+
+.orb-1 {
+    width: 600px;
+    height: 600px;
+    background: var(--gradient-videos);
+    top: -200px;
+    left: -200px;
+    animation-delay: 0s;
+}
+
+.orb-2 {
+    width: 500px;
+    height: 500px;
+    background: var(--gradient-ads);
+    top: 50%;
+    right: -150px;
+    animation-delay: -5s;
+}
+
+.orb-3 {
+    width: 400px;
+    height: 400px;
+    background: var(--gradient-premium);
+    bottom: -100px;
+    left: 30%;
+    animation-delay: -10s;
+}
+
+/* Container */
+.home-container {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-lg);
+}
+
+/* Header */
+.header {
+    text-align: center;
+    margin-bottom: var(--spacing-xl);
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-sm);
+}
+
+.logo-icon {
+    width: 60px;
+    height: 60px;
+    animation: pulse 2s infinite ease-in-out;
+}
+
+.logo-icon svg {
+    width: 100%;
+    height: 100%;
+    filter: drop-shadow(0 0 20px rgba(255, 8, 68, 0.5));
+}
+
+.logo-text {
+    font-size: 3.5rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #fff 0%, rgba(255, 255, 255, 0.8) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: -2px;
+    text-shadow: 0 0 40px rgba(255, 255, 255, 0.2);
+}
+
+.underscore {
+    color: var(--primary-red);
+    -webkit-text-fill-color: var(--primary-red);
+    animation: blink 1.5s infinite;
+}
+
+.tagline {
+    font-size: 1.2rem;
+    color: var(--text-secondary);
+    font-weight: 300;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+}
+
+/* Workspaces Grid */
+.workspaces {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--spacing-lg);
+    max-width: 1200px;
+    width: 100%;
+}
+
+/* Workspace Card */
+.workspace-card {
+    position: relative;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-xl);
+    padding: var(--spacing-xl);
+    cursor: pointer;
+    overflow: hidden;
+    transition: all var(--transition-normal);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    animation: slideUp 0.8s ease forwards;
+    opacity: 0;
+}
+
+.workspace-card:nth-child(1) {
+    animation-delay: 0.1s;
+}
+
+.workspace-card:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.workspace-card:nth-child(3) {
+    animation-delay: 0.3s;
+}
+
+.workspace-card:hover {
+    transform: translateY(-10px) scale(1.02);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Card Glow Effect */
+.card-glow {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    opacity: 0;
+    transition: opacity var(--transition-normal);
+    pointer-events: none;
+}
+
+.workspace-card:hover .card-glow {
+    opacity: 1;
+}
+
+.card-videos .card-glow {
+    background: radial-gradient(circle at 50% 50%, rgba(255, 8, 68, 0.2) 0%, transparent 70%);
+}
+
+.card-ads .card-glow {
+    background: radial-gradient(circle at 50% 50%, rgba(255, 215, 0, 0.2) 0%, transparent 70%);
+}
+
+.card-premium .card-glow {
+    background: radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.2) 0%, transparent 70%);
+}
+
+/* Card Hover Shadows */
+.card-videos:hover {
+    box-shadow: var(--shadow-videos);
+}
+
+.card-ads:hover {
+    box-shadow: var(--shadow-ads);
+}
+
+.card-premium:hover {
+    box-shadow: var(--shadow-premium);
+}
+
+/* Card Content */
+.card-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+}
+
+.card-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto var(--spacing-md);
+    padding: var(--spacing-md);
+    border-radius: var(--radius-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-normal);
+}
+
+.card-icon svg {
+    width: 100%;
+    height: 100%;
+}
+
+.card-videos .card-icon {
+    background: var(--gradient-videos);
+    color: white;
+}
+
+.card-ads .card-icon {
+    background: var(--gradient-ads);
+    color: #1a1a1a;
+}
+
+.card-premium .card-icon {
+    background: var(--gradient-premium);
+    color: white;
+}
+
+.workspace-card:hover .card-icon {
+    transform: scale(1.1) rotate(5deg);
+}
+
+.card-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: var(--spacing-xs);
+    transition: all var(--transition-normal);
+}
+
+.card-videos:hover .card-title {
+    color: #FF6B6B;
+}
+
+.card-ads:hover .card-title {
+    color: var(--accent-gold);
+}
+
+.card-premium:hover .card-title {
+    color: #A78BFA;
+}
+
+.card-subtitle {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    font-weight: 300;
+    letter-spacing: 1px;
+    margin-bottom: var(--spacing-md);
+}
+
+/* Card Badge */
+.card-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50px;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    transition: all var(--transition-normal);
+}
+
+.coin-icon,
+.badge-icon {
+    font-size: 1.1rem;
+}
+
+.card-videos:hover .card-badge {
+    background: var(--gradient-videos);
+    color: white;
+}
+
+.card-ads:hover .card-badge {
+    background: var(--gradient-ads);
+    color: #1a1a1a;
+}
+
+.card-premium:hover .card-badge {
+    background: var(--gradient-premium);
+    color: white;
+}
+
+/* Floating Decorations */
+.card-decoration {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+    opacity: 0;
+    transition: opacity var(--transition-normal);
+}
+
+.workspace-card:hover .card-decoration {
+    opacity: 1;
+}
+
+.floating-icon {
+    position: absolute;
+    font-size: 1.5rem;
+    animation: floatUp 3s infinite ease-in-out;
+    opacity: 0.6;
+}
+
+.floating-icon:nth-child(1) {
+    top: 20%;
+    left: 10%;
+}
+
+.floating-icon:nth-child(2) {
+    top: 60%;
+    right: 15%;
+    animation-delay: -1s;
+}
+
+.floating-icon:nth-child(3) {
+    bottom: 20%;
+    left: 20%;
+    animation-delay: -2s;
+}
+
+@keyframes floatUp {
+
+    0%,
+    100% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 0.3;
+    }
+
+    50% {
+        transform: translateY(-15px) rotate(10deg);
+        opacity: 0.7;
+    }
+}
+
+/* Footer */
+.footer {
+    margin-top: var(--spacing-xl);
+    text-align: center;
+}
+
+.footer p {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    animation: fadeIn 1s ease forwards;
+    animation-delay: 0.5s;
+    opacity: 0;
+}
+
+/* Glassmorphism Enhancement */
+.workspace-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg,
+            transparent 0%,
+            rgba(255, 255, 255, 0.3) 50%,
+            transparent 100%);
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .workspaces {
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--spacing-md);
+    }
+
+    .workspace-card:last-child {
+        grid-column: span 2;
+        max-width: 400px;
+        margin: 0 auto;
+    }
+}
+
+@media (max-width: 768px) {
+    .logo-text {
+        font-size: 2.5rem;
+    }
+
+    .logo-icon {
+        width: 45px;
+        height: 45px;
+    }
+
+    .tagline {
+        font-size: 0.9rem;
+        letter-spacing: 2px;
+    }
+
+    .workspaces {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-md);
+    }
+
+    .workspace-card {
+        padding: var(--spacing-lg);
+    }
+
+    .workspace-card:last-child {
+        grid-column: span 1;
+        max-width: none;
+    }
+
+    .card-title {
+        font-size: 1.5rem;
+    }
+
+    .card-icon {
+        width: 60px;
+        height: 60px;
+        padding: var(--spacing-sm);
+    }
+}
