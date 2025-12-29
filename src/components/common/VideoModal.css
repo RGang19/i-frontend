@@ -131,6 +131,153 @@
     background: var(--border-color);
 }
 
+.action-btn.active {
+    background: var(--primary-red);
+}
+
+.action-btn.liked {
+    background: #3b82f6;
+}
+
+.action-btn.disliked {
+    background: #6b7280;
+}
+
+.action-btn.saved {
+    background: #10b981;
+}
+
+/* Video Element */
+.video-element {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: #000;
+}
+
+/* Share Popup */
+.share-popup {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 20;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.share-popup-content {
+    background: var(--card-bg);
+    padding: 30px;
+    border-radius: var(--radius-md);
+    width: 90%;
+    max-width: 400px;
+    position: relative;
+}
+
+.close-share-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 30px;
+    height: 30px;
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+
+.close-share-btn:hover {
+    color: var(--text-primary);
+}
+
+.share-popup-content h3 {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.share-link {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.share-link input {
+    flex: 1;
+    padding: 12px;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    font-size: 0.9rem;
+}
+
+.share-link button {
+    padding: 12px 20px;
+    background: var(--primary-red);
+    border: none;
+    border-radius: var(--radius-sm);
+    color: white;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background var(--transition-fast);
+    white-space: nowrap;
+}
+
+.share-link button:hover {
+    background: var(--primary-red-hover);
+}
+
+.share-icons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+.share-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    color: white;
+    text-decoration: none;
+    transition: transform var(--transition-fast);
+}
+
+.share-icon:hover {
+    transform: scale(1.1);
+}
+
+.share-icon.twitter {
+    background: #000;
+}
+
+.share-icon.facebook {
+    background: #1877f2;
+}
+
+.share-icon.whatsapp {
+    background: #25d366;
+}
+
 /* Coin Earned Popup */
 .coin-earned-popup {
     position: absolute;
