@@ -3,6 +3,17 @@ import './Upload.css';
 
 const API_URL = 'https://i-backend-nve4.onrender.com/api';
 
+const CATEGORIES = [
+    { value: '', label: 'Select category' },
+    { value: 'Gaming', label: 'Gaming' },
+    { value: 'Music', label: 'Music' },
+    { value: 'Movies', label: 'Movies' },
+    { value: 'Live', label: 'Live' },
+    { value: 'Tech', label: 'Technology' },
+    { value: 'Sports', label: 'Sports' },
+    { value: 'News', label: 'News' },
+];
+
 export default function Upload() {
     const [file, setFile] = useState(null);
     const [preview, setPreview] = useState(null);
@@ -91,7 +102,15 @@ export default function Upload() {
         setError(null);
 
         const uploadData = new FormData();
-        uploadData.append('file', file);
+
+        // Create a new file with category prefix in name for filtering
+        const category = formData.category || 'General';
+        const extension = file.name.split('.').pop();
+        const baseName = formData.title || file.name.replace(/\.[^/.]+$/, '');
+        const newFileName = `[${category}] ${baseName}.${extension}`;
+
+        const renamedFile = new File([file], newFileName, { type: file.type });
+        uploadData.append('file', renamedFile);
 
         try {
             // Simulate progress
@@ -262,14 +281,9 @@ export default function Upload() {
                                                 value={formData.category}
                                                 onChange={handleInputChange}
                                             >
-                                                <option value="">Select category</option>
-                                                <option value="gaming">Gaming</option>
-                                                <option value="music">Music</option>
-                                                <option value="education">Education</option>
-                                                <option value="entertainment">Entertainment</option>
-                                                <option value="tech">Technology</option>
-                                                <option value="sports">Sports</option>
-                                                <option value="other">Other</option>
+                                                {CATEGORIES.map(cat => (
+                                                    <option key={cat.value} value={cat.value}>{cat.label}</option>
+                                                ))}
                                             </select>
                                         </div>
                                         <div className="form-group">

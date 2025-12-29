@@ -57,7 +57,20 @@ export default function Videos() {
                             file.mimeType?.startsWith('image/')
                         )
                         .map(file => {
-                            const title = file.name.replace(/\.[^/.]+$/, '');
+                            let rawName = file.name.replace(/\.[^/.]+$/, ''); // Remove extension
+                            let category = 'All';
+                            let title = rawName;
+
+                            // Check for [Category] prefix in filename
+                            const categoryMatch = rawName.match(/^\[([^\]]+)\]\s*/);
+                            if (categoryMatch) {
+                                category = categoryMatch[1]; // Extract category from brackets
+                                title = rawName.replace(/^\[[^\]]+\]\s*/, ''); // Remove category prefix from title
+                            } else {
+                                // Fallback to keyword detection
+                                category = detectCategory(rawName);
+                            }
+
                             return {
                                 id: file.id,
                                 title: title,
@@ -71,7 +84,7 @@ export default function Videos() {
                                 webViewLink: file.webViewLink,
                                 webContentLink: file.webContentLink,
                                 mimeType: file.mimeType,
-                                category: detectCategory(title),
+                                category: category,
                             };
                         });
 
