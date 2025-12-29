@@ -202,6 +202,16 @@ export default function VideoModal({ video, onClose, onEarnCoins }) {
                     )}
                 </div>
 
+                {/* Fallback link for videos still processing */}
+                {video.mimeType?.startsWith('video/') && video.webViewLink && (
+                    <div className="video-fallback">
+                        <span>Video not loading?</span>
+                        <a href={video.webViewLink} target="_blank" rel="noopener noreferrer">
+                            Watch on Google Drive →
+                        </a>
+                    </div>
+                )}
+
                 <div className="video-info">
                     <h2>{video.title}</h2>
                     <div className="video-stats">

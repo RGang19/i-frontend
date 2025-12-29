@@ -156,6 +156,31 @@
     border: none;
 }
 
+/* Fallback Link */
+.video-fallback {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    background: var(--card-bg);
+    border-bottom: 1px solid var(--border-color);
+    font-size: 0.85rem;
+}
+
+.video-fallback span {
+    color: var(--text-muted);
+}
+
+.video-fallback a {
+    color: var(--primary-red);
+    font-weight: 500;
+}
+
+.video-fallback a:hover {
+    text-decoration: underline;
+}
+
 /* Share Popup */
 .share-popup {
     position: absolute;
