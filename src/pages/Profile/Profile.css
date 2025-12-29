@@ -85,6 +85,133 @@
     color: var(--text-muted);
 }
 
+/* Saved Section */
+.saved-section {
+    margin-bottom: var(--spacing-xl);
+}
+
+.saved-section .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.saved-section h2 {
+    font-size: 1.3rem;
+}
+
+.tab-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.tab-btn {
+    padding: 8px 16px;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.tab-btn.active {
+    background: var(--primary-red);
+    border-color: var(--primary-red);
+    color: white;
+}
+
+.saved-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.saved-video-wrapper {
+    position: relative;
+}
+
+.remove-saved-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 5px 10px;
+    background: rgba(255, 0, 0, 0.8);
+    border: none;
+    border-radius: 5px;
+    color: white;
+    font-size: 0.75rem;
+    cursor: pointer;
+    z-index: 10;
+    opacity: 0;
+    transition: opacity var(--transition-fast);
+}
+
+.saved-video-wrapper:hover .remove-saved-btn {
+    opacity: 1;
+}
+
+.loading-saved {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px;
+    gap: 15px;
+}
+
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--border-color);
+    border-top-color: var(--primary-red);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.empty-saved {
+    text-align: center;
+    padding: 60px 20px;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+}
+
+.empty-saved .empty-icon {
+    font-size: 3rem;
+    margin-bottom: 15px;
+    opacity: 0.5;
+}
+
+.empty-saved h3 {
+    margin-bottom: 10px;
+}
+
+.empty-saved p {
+    color: var(--text-muted);
+    margin-bottom: 20px;
+}
+
+.empty-saved .browse-btn {
+    display: inline-block;
+    padding: 12px 24px;
+    background: var(--gradient-primary);
+    border-radius: 25px;
+    color: white;
+    font-weight: 600;
+    transition: transform var(--transition-fast);
+}
+
+.empty-saved .browse-btn:hover {
+    transform: scale(1.05);
+}
+
 /* Wallet Section */
 .wallet-section {
     margin-bottom: var(--spacing-xl);
