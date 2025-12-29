@@ -1,90 +1,171 @@
 import { useState, useEffect } from 'react';
+import { useAuth } from '../../context/AuthContext';
 import './VideoModal.css';
 
-// LocalStorage keys
-const getInteractionKey = (videoId) => `video_interactions_${videoId}`;
+const API_URL = 'https://i-backend-nve4.onrender.com/api';
+
+// LocalStorage keys for saved videos only
 const getSavedVideosKey = () => 'saved_videos';
-const getCommentsKey = (videoId) => `video_comments_${videoId}`;
 
 export default function VideoModal({ video, onClose, onEarnCoins }) {
+    const { user, isAuthenticated } = useAuth();
     const [showCoinPopup, setShowCoinPopup] = useState(false);
     const [hasEarned, setHasEarned] = useState(false);
     const [showSharePopup, setShowSharePopup] = useState(false);
     const [copied, setCopied] = useState(false);
+    const [loading, setLoading] = useState(true);
 
-    // Interaction states
+    // Stats from API
+    const [views, setViews] = useState(0);
     const [likes, setLikes] = useState(0);
     const [dislikes, setDislikes] = useState(0);
     const [userLiked, setUserLiked] = useState(false);
     const [userDisliked, setUserDisliked] = useState(false);
     const [saved, setSaved] = useState(false);
 
-    // Comments states
+    // Comments
     const [comments, setComments] = useState([]);
     const [newComment, setNewComment] = useState('');
     const [showComments, setShowComments] = useState(false);
 
-    // Load interactions from localStorage
-    useEffect(() => {
-        const storedData = localStorage.getItem(getInteractionKey(video.id));
-        if (storedData) {
-            const data = JSON.parse(storedData);
-            setLikes(data.likes || 0);
-            setDislikes(data.dislikes || 0);
-            setUserLiked(data.userLiked || false);
-            setUserDisliked(data.userDisliked || false);
-        } else {
-            // Initialize with random numbers for new videos
-            const initialLikes = Math.floor(Math.random() * 500) + 10;
-            const initialDislikes = Math.floor(Math.random() * 50);
-            setLikes(initialLikes);
-            setDislikes(initialDislikes);
+    // Get user ID (use email or generate anonymous ID)
+    const getUserId = () => {
+        if (isAuthenticated && user?.email) {
+            return user.email;
         }
-
-        // Check if video is saved
-        const savedVideos = JSON.parse(localStorage.getItem(getSavedVideosKey()) || '[]');
-        setSaved(savedVideos.includes(video.id));
-
-        // Load comments
-        const storedComments = localStorage.getItem(getCommentsKey(video.id));
-        if (storedComments) {
-            setComments(JSON.parse(storedComments));
+        let anonId = localStorage.getItem('anon_user_id');
+        if (!anonId) {
+            anonId = 'anon_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            localStorage.setItem('anon_user_id', anonId);
         }
-    }, [video.id]);
-
-    // Save interactions to localStorage
-    const saveInteractions = (newLikes, newDislikes, liked, disliked) => {
-        localStorage.setItem(getInteractionKey(video.id), JSON.stringify({
-            likes: newLikes,
-            dislikes: newDislikes,
-            userLiked: liked,
-            userDisliked: disliked,
-        }));
+        return anonId;
     };
 
-    // Comment handlers
-    const handleAddComment = () => {
-        if (!newComment.trim()) return;
+    // Load stats from API
+    useEffect(() => {
+        const fetchStats = async () => {
+            try {
+                setLoading(true);
+                const response = await fetch(`${API_URL}/stats/${video.id}`);
+                const data = await response.json();
 
-        const comment = {
-            id: Date.now(),
-            text: newComment.trim(),
-            author: 'You',
-            avatar: '👤',
-            timestamp: new Date().toISOString(),
-            likes: 0,
+                if (data.success) {
+                    const stats = data.data;
+                    setViews(stats.views || 0);
+                    setLikes(stats.likes || 0);
+                    setDislikes(stats.dislikes || 0);
+                    setComments(stats.comments || []);
+
+                    // Check if user liked/disliked
+                    const userId = getUserId();
+                    setUserLiked(stats.likedBy?.includes(userId) || false);
+                    setUserDisliked(stats.dislikedBy?.includes(userId) || false);
+                }
+
+                // Increment view count
+                await fetch(`${API_URL}/stats/${video.id}/view`, { method: 'POST' });
+                setViews(prev => prev + 1);
+            } catch (error) {
+                console.error('Error fetching stats:', error);
+            } finally {
+                setLoading(false);
+            }
         };
 
-        const updatedComments = [comment, ...comments];
-        setComments(updatedComments);
-        localStorage.setItem(getCommentsKey(video.id), JSON.stringify(updatedComments));
-        setNewComment('');
+        fetchStats();
+
+        // Check if video is saved (local)
+        const savedVideos = JSON.parse(localStorage.getItem(getSavedVideosKey()) || '[]');
+        setSaved(savedVideos.includes(video.id));
+    }, [video.id]);
+
+    // Handle like
+    const handleLike = async () => {
+        const userId = getUserId();
+        const action = userLiked ? 'remove' : 'add';
+
+        try {
+            const response = await fetch(`${API_URL}/stats/${video.id}/like`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId, action }),
+            });
+            const data = await response.json();
+
+            if (data.success) {
+                setLikes(data.data.likes);
+                setDislikes(data.data.dislikes);
+                setUserLiked(!userLiked);
+                if (!userLiked) setUserDisliked(false);
+            }
+        } catch (error) {
+            console.error('Error updating like:', error);
+        }
     };
 
-    const handleDeleteComment = (commentId) => {
-        const updatedComments = comments.filter(c => c.id !== commentId);
-        setComments(updatedComments);
-        localStorage.setItem(getCommentsKey(video.id), JSON.stringify(updatedComments));
+    // Handle dislike
+    const handleDislike = async () => {
+        const userId = getUserId();
+        const action = userDisliked ? 'remove' : 'add';
+
+        try {
+            const response = await fetch(`${API_URL}/stats/${video.id}/dislike`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId, action }),
+            });
+            const data = await response.json();
+
+            if (data.success) {
+                setLikes(data.data.likes);
+                setDislikes(data.data.dislikes);
+                setUserDisliked(!userDisliked);
+                if (!userDisliked) setUserLiked(false);
+            }
+        } catch (error) {
+            console.error('Error updating dislike:', error);
+        }
+    };
+
+    // Handle add comment
+    const handleAddComment = async () => {
+        if (!newComment.trim()) return;
+
+        const userId = getUserId();
+        const userName = isAuthenticated ? user?.name : 'Guest';
+
+        try {
+            const response = await fetch(`${API_URL}/stats/${video.id}/comment`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    userId,
+                    userName,
+                    text: newComment.trim(),
+                    avatar: isAuthenticated ? (user?.name?.charAt(0) || '👤') : '👤',
+                }),
+            });
+            const data = await response.json();
+
+            if (data.success) {
+                setComments(prev => [data.data, ...prev]);
+                setNewComment('');
+            }
+        } catch (error) {
+            console.error('Error adding comment:', error);
+        }
+    };
+
+    // Handle delete comment
+    const handleDeleteComment = async (commentId) => {
+        try {
+            await fetch(`${API_URL}/stats/${video.id}/comment/${commentId}`, {
+                method: 'DELETE',
+            });
+            setComments(prev => prev.filter(c => c.id !== commentId));
+        } catch (error) {
+            console.error('Error deleting comment:', error);
+        }
     };
 
     const formatTimestamp = (timestamp) => {
@@ -98,131 +179,51 @@ export default function VideoModal({ video, onClose, onEarnCoins }) {
         return `${days}d ago`;
     };
 
-    const handleLike = () => {
-        let newLikes = likes;
-        let newDislikes = dislikes;
-        let liked = userLiked;
-        let disliked = userDisliked;
-
-        if (userLiked) {
-            // Remove like
-            newLikes = likes - 1;
-            liked = false;
-        } else {
-            // Add like
-            newLikes = likes + 1;
-            liked = true;
-            // Remove dislike if exists
-            if (userDisliked) {
-                newDislikes = dislikes - 1;
-                disliked = false;
-            }
-        }
-
-        setLikes(newLikes);
-        setDislikes(newDislikes);
-        setUserLiked(liked);
-        setUserDisliked(disliked);
-        saveInteractions(newLikes, newDislikes, liked, disliked);
-    };
-
-    const handleDislike = () => {
-        let newLikes = likes;
-        let newDislikes = dislikes;
-        let liked = userLiked;
-        let disliked = userDisliked;
-
-        if (userDisliked) {
-            // Remove dislike
-            newDislikes = dislikes - 1;
-            disliked = false;
-        } else {
-            // Add dislike
-            newDislikes = dislikes + 1;
-            disliked = true;
-            // Remove like if exists
-            if (userLiked) {
-                newLikes = likes - 1;
-                liked = false;
-            }
-        }
-
-        setLikes(newLikes);
-        setDislikes(newDislikes);
-        setUserLiked(liked);
-        setUserDisliked(disliked);
-        saveInteractions(newLikes, newDislikes, liked, disliked);
-    };
-
     const handleShare = () => {
         setShowSharePopup(true);
     };
 
-    const copyLink = async () => {
-        const shareUrl = video.webViewLink || `https://i-tube.netlify.app/watch/${video.id}`;
-        try {
-            await navigator.clipboard.writeText(shareUrl);
-            setCopied(true);
-            setTimeout(() => setCopied(false), 2000);
-        } catch (err) {
-            console.error('Failed to copy:', err);
-        }
+    const copyLink = () => {
+        const link = video.webViewLink || `https://i-tube.netlify.app/watch/${video.id}`;
+        navigator.clipboard.writeText(link);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
     };
 
     const handleSave = () => {
         const savedVideos = JSON.parse(localStorage.getItem(getSavedVideosKey()) || '[]');
 
         if (saved) {
-            // Remove from saved
             const updated = savedVideos.filter(id => id !== video.id);
             localStorage.setItem(getSavedVideosKey(), JSON.stringify(updated));
             setSaved(false);
         } else {
-            // Add to saved
             savedVideos.push(video.id);
             localStorage.setItem(getSavedVideosKey(), JSON.stringify(savedVideos));
             setSaved(true);
         }
     };
 
+    // Earn coins after watching
     useEffect(() => {
-        // Simulate earning coins after watching for 2 seconds
+        if (hasEarned) return;
+
         const timer = setTimeout(() => {
-            if (!hasEarned) {
+            if (onEarnCoins && video.coins) {
                 onEarnCoins(video.coins);
                 setHasEarned(true);
                 setShowCoinPopup(true);
-
                 setTimeout(() => setShowCoinPopup(false), 3000);
             }
-        }, 2000);
+        }, 5000);
 
         return () => clearTimeout(timer);
-    }, [video, onEarnCoins, hasEarned]);
+    }, [hasEarned, onEarnCoins, video.coins]);
 
-    useEffect(() => {
-        // Prevent body scroll when modal is open
-        document.body.style.overflow = 'hidden';
-        return () => {
-            document.body.style.overflow = '';
-        };
-    }, []);
-
-    const handleKeyDown = (e) => {
-        if (e.key === 'Escape') {
-            onClose();
-        }
-    };
-
-    useEffect(() => {
-        document.addEventListener('keydown', handleKeyDown);
-        return () => document.removeEventListener('keydown', handleKeyDown);
-    }, []);
-
-    const formatCount = (num) => {
-        if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
-        if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
-        return num.toString();
+    const formatCount = (count) => {
+        if (count >= 1000000) return (count / 1000000).toFixed(1) + 'M';
+        if (count >= 1000) return (count / 1000).toFixed(1) + 'K';
+        return count.toString();
     };
 
     return (
@@ -263,19 +264,21 @@ export default function VideoModal({ video, onClose, onEarnCoins }) {
                 <div className="video-info">
                     <h2>{video.title}</h2>
                     <div className="video-stats">
-                        <span>{video.views} views</span>
+                        <span>{formatCount(views)} views</span>
                         <span>{video.date}</span>
                     </div>
                     <div className="video-actions">
                         <button
                             className={`action-btn ${userLiked ? 'active liked' : ''}`}
                             onClick={handleLike}
+                            disabled={loading}
                         >
                             <span>👍</span> {formatCount(likes)}
                         </button>
                         <button
                             className={`action-btn ${userDisliked ? 'active disliked' : ''}`}
                             onClick={handleDislike}
+                            disabled={loading}
                         >
                             <span>👎</span> {formatCount(dislikes)}
                         </button>
@@ -322,20 +325,22 @@ export default function VideoModal({ video, onClose, onEarnCoins }) {
                                 ) : (
                                     comments.map(comment => (
                                         <div key={comment.id} className="comment-item">
-                                            <div className="comment-avatar">{comment.avatar}</div>
+                                            <div className="comment-avatar">{comment.avatar || '👤'}</div>
                                             <div className="comment-content">
                                                 <div className="comment-header">
-                                                    <span className="comment-author">{comment.author}</span>
+                                                    <span className="comment-author">{comment.userName || 'Guest'}</span>
                                                     <span className="comment-time">{formatTimestamp(comment.timestamp)}</span>
                                                 </div>
                                                 <p className="comment-text">{comment.text}</p>
                                             </div>
-                                            <button
-                                                className="delete-comment"
-                                                onClick={() => handleDeleteComment(comment.id)}
-                                            >
-                                                🗑️
-                                            </button>
+                                            {comment.userId === getUserId() && (
+                                                <button
+                                                    className="delete-comment"
+                                                    onClick={() => handleDeleteComment(comment.id)}
+                                                >
+                                                    🗑️
+                                                </button>
+                                            )}
                                         </div>
                                     ))
                                 )}
