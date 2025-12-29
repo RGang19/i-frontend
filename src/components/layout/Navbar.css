@@ -145,17 +145,81 @@
     border-color: var(--primary-red);
 }
 
+/* Tablet */
 @media (max-width: 768px) {
     .navbar {
         padding: 0 15px;
+        height: 55px;
     }
 
     .nav-center {
         display: none;
     }
 
+    .logo-text {
+        font-size: 1.2rem;
+    }
+
+    .logo-icon {
+        width: 28px;
+        height: 28px;
+    }
+
+    .coins-display {
+        padding: 6px 12px;
+        font-size: 0.85rem;
+    }
+
     .auth-btn {
         padding: 6px 12px;
         font-size: 0.8rem;
+    }
+
+    .user-avatar {
+        width: 32px;
+        height: 32px;
+        font-size: 0.8rem;
+    }
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+    .navbar {
+        padding: 0 10px;
+        height: 50px;
+    }
+
+    .logo-text {
+        font-size: 1rem;
+    }
+
+    .logo-icon {
+        width: 24px;
+        height: 24px;
+    }
+
+    .coins-display {
+        padding: 5px 10px;
+        font-size: 0.75rem;
+        gap: 5px;
+    }
+
+    .coin-icon {
+        font-size: 0.9rem;
+    }
+
+    .auth-btn {
+        padding: 5px 10px;
+        font-size: 0.75rem;
+    }
+
+    .user-avatar {
+        width: 28px;
+        height: 28px;
+        font-size: 0.7rem;
+    }
+
+    .nav-right {
+        gap: 8px;
     }
 }
