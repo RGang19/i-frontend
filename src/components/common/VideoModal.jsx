@@ -185,9 +185,13 @@ export default function VideoModal({ video, onClose, onEarnCoins }) {
 
                 <div className="video-player">
                     {video.mimeType?.startsWith('video/') ? (
-                        <video controls autoPlay className="video-element">
-                            <source src={`https://drive.google.com/uc?export=download&id=${video.id}`} type={video.mimeType} />
-                        </video>
+                        <iframe
+                            src={`https://drive.google.com/file/d/${video.id}/preview`}
+                            className="video-element"
+                            allow="autoplay; encrypted-media"
+                            allowFullScreen
+                            title={video.title}
+                        />
                     ) : (
                         <>
                             <img src={video.thumbnail} alt={video.title} className="video-poster" />

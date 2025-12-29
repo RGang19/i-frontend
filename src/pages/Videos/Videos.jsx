@@ -42,10 +42,10 @@ export default function Videos() {
                             date: formatDate(file.createdTime),
                             duration: file.mimeType?.startsWith('video/') ? '00:00' : 'Image',
                             coins: 5,
-                            thumbnail: file.mimeType?.startsWith('image/')
-                                ? `https://drive.google.com/thumbnail?id=${file.id}&sz=w640`
-                                : `https://picsum.photos/seed/${file.id}/640/360`,
+                            // Use Google Drive thumbnail for all files
+                            thumbnail: `https://drive.google.com/thumbnail?id=${file.id}&sz=w640`,
                             webViewLink: file.webViewLink,
+                            webContentLink: file.webContentLink,
                             mimeType: file.mimeType,
                         }));
 
