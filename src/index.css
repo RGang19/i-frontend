@@ -20,6 +20,7 @@
   --error-red: #ef4444;
 
   /* Gradients */
+  --gradient-primary: linear-gradient(135deg, #FF0844 0%, #FF6B6B 100%);
   --gradient-videos: linear-gradient(135deg, #FF0844 0%, #FF6B6B 100%);
   --gradient-ads: linear-gradient(135deg, #FFD700 0%, #FF8C00 100%);
   --gradient-premium: linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%);
@@ -28,6 +29,7 @@
   --shadow-videos: 0 20px 60px rgba(255, 8, 68, 0.4);
   --shadow-ads: 0 20px 60px rgba(255, 215, 0, 0.4);
   --shadow-premium: 0 20px 60px rgba(139, 92, 246, 0.4);
+  --shadow-glow: 0 0 40px rgba(255, 8, 68, 0.3);
 
   /* Spacing */
   --spacing-xs: 0.5rem;
@@ -46,6 +48,10 @@
   --transition-fast: 0.2s ease;
   --transition-normal: 0.3s ease;
   --transition-slow: 0.5s ease;
+
+  /* Sidebar widths */
+  --sidebar-expanded: 240px;
+  --sidebar-collapsed: 70px;
 }
 
 /* Reset */
@@ -69,6 +75,36 @@ body {
   min-height: 100vh;
   overflow-x: hidden;
   line-height: 1.6;
+  position: relative;
+}
+
+/* Animated background gradient */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background:
+    radial-gradient(ellipse at 20% 20%, rgba(255, 8, 68, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 80%, rgba(139, 92, 246, 0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 50%, rgba(255, 215, 0, 0.04) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: -1;
+  animation: bgPulse 15s ease-in-out infinite;
+}
+
+@keyframes bgPulse {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.6;
+  }
 }
 
 a {
@@ -90,6 +126,21 @@ select {
 img {
   max-width: 100%;
   display: block;
+}
+
+/* Main Content Layout */
+.main-content {
+  min-height: 100vh;
+  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    padding-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.main-content.with-sidebar-expanded {
+  margin-left: var(--sidebar-expanded);
+}
+
+.main-content.with-sidebar-collapsed {
+  margin-left: var(--sidebar-collapsed);
 }
 
 /* Utility Classes */
@@ -128,6 +179,18 @@ img {
   }
 }
 
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @keyframes slideUp {
   from {
     opacity: 0;
@@ -137,6 +200,30 @@ img {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
   }
 }
 
@@ -172,6 +259,28 @@ img {
   }
 }
 
+@keyframes glow {
+
+  0%,
+  100% {
+    box-shadow: 0 0 20px rgba(255, 8, 68, 0.3);
+  }
+
+  50% {
+    box-shadow: 0 0 40px rgba(255, 8, 68, 0.6);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
+}
+
 @keyframes blink {
 
   0%,
@@ -183,5 +292,84 @@ img {
   25%,
   75% {
     opacity: 0.3;
+  }
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Grid Animation for Cards */
+.animate-grid>* {
+  animation: fadeInUp 0.5s ease both;
+}
+
+.animate-grid>*:nth-child(1) {
+  animation-delay: 0.05s;
+}
+
+.animate-grid>*:nth-child(2) {
+  animation-delay: 0.1s;
+}
+
+.animate-grid>*:nth-child(3) {
+  animation-delay: 0.15s;
+}
+
+.animate-grid>*:nth-child(4) {
+  animation-delay: 0.2s;
+}
+
+.animate-grid>*:nth-child(5) {
+  animation-delay: 0.25s;
+}
+
+.animate-grid>*:nth-child(6) {
+  animation-delay: 0.3s;
+}
+
+.animate-grid>*:nth-child(7) {
+  animation-delay: 0.35s;
+}
+
+.animate-grid>*:nth-child(8) {
+  animation-delay: 0.4s;
+}
+
+.animate-grid>*:nth-child(9) {
+  animation-delay: 0.45s;
+}
+
+.animate-grid>*:nth-child(10) {
+  animation-delay: 0.5s;
+}
+
+.animate-grid>*:nth-child(11) {
+  animation-delay: 0.55s;
+}
+
+.animate-grid>*:nth-child(12) {
+  animation-delay: 0.6s;
+}
+
+/* Glass Effect Utility */
+.glass {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+
+  .main-content.with-sidebar-expanded,
+  .main-content.with-sidebar-collapsed {
+    margin-left: 0;
   }
 }

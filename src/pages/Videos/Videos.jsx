@@ -85,7 +85,7 @@ export default function Videos() {
                 </div>
 
                 {/* Video Grid */}
-                <div className="video-grid">
+                <div className="video-grid animate-grid">
                     {filteredVideos.map(video => (
                         <VideoCard
                             key={video.id}

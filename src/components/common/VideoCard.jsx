@@ -5,6 +5,9 @@ export default function VideoCard({ video, onClick }) {
         <div className="video-card" onClick={onClick}>
             <div className="video-thumbnail">
                 <img src={video.thumbnail} alt={video.title} loading="lazy" />
+                <div className="play-overlay">
+                    <div className="play-btn">▶</div>
+                </div>
                 <span className="video-duration">{video.duration}</span>
                 <span className="coin-reward">🪙 +{video.coins}</span>
             </div>

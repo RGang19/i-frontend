@@ -1,7 +1,9 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { CoinProvider } from './context/CoinContext';
 import { AuthProvider } from './context/AuthContext';
 import Navbar from './components/layout/Navbar';
+import Sidebar from './components/layout/Sidebar';
 import Home from './pages/Home/Home';
 import Videos from './pages/Videos/Videos';
 import Ads from './pages/Ads/Ads';
@@ -10,20 +12,40 @@ import Profile from './pages/Profile/Profile';
 import Upload from './pages/Upload/Upload';
 import './index.css';
 
+function MainLayout() {
+  const [sidebarExpanded, setSidebarExpanded] = useState(true);
+  const location = useLocation();
+  const isHome = location.pathname === '/';
+
+  return (
+    <>
+      <Navbar />
+      {!isHome && (
+        <Sidebar
+          isExpanded={sidebarExpanded}
+          onToggle={() => setSidebarExpanded(!sidebarExpanded)}
+        />
+      )}
+      <main className={`main-content ${!isHome ? (sidebarExpanded ? 'with-sidebar-expanded' : 'with-sidebar-collapsed') : ''}`}>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/videos" element={<Videos />} />
+          <Route path="/ads" element={<Ads />} />
+          <Route path="/premium" element={<Premium />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/upload" element={<Upload />} />
+        </Routes>
+      </main>
+    </>
+  );
+}
+
 function App() {
   return (
     <AuthProvider>
       <CoinProvider>
         <Router>
-          <Navbar />
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/videos" element={<Videos />} />
-            <Route path="/ads" element={<Ads />} />
-            <Route path="/premium" element={<Premium />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/upload" element={<Upload />} />
-          </Routes>
+          <MainLayout />
         </Router>
       </CoinProvider>
     </AuthProvider>
@@ -31,4 +53,3 @@ function App() {
 }
 
 export default App;
-
