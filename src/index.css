@@ -73,6 +73,22 @@
   --sidebar-collapsed: 70px;
 }
 
+/* Light Theme */
+[data-theme="light"] {
+  --dark-bg: #f5f5f7;
+  --darker-bg: #ffffff;
+  --card-bg: rgba(255, 255, 255, 0.9);
+  --card-hover: rgba(245, 245, 250, 0.95);
+  --border-color: rgba(0, 0, 0, 0.1);
+  --border-glow: rgba(255, 8, 68, 0.2);
+
+  --text-primary: #1a1a2e;
+  --text-secondary: rgba(26, 26, 46, 0.75);
+  --text-muted: rgba(26, 26, 46, 0.5);
+
+  --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
 /* Reset */
 *,
 *::before,

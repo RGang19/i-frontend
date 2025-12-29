@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useCoins } from '../../context/CoinContext';
 import { useAuth } from '../../context/AuthContext';
+import { useTheme } from '../../context/ThemeContext';
 import VideoCard from '../../components/common/VideoCard';
 import VideoModal from '../../components/common/VideoModal';
 import './Profile.css';
@@ -11,6 +12,7 @@ const API_URL = 'https://i-backend-nve4.onrender.com/api';
 export default function Profile() {
     const { coins, coinsEarnedToday, adsWatchedToday, addCoins } = useCoins();
     const { user, isAuthenticated } = useAuth();
+    const { theme, toggleTheme } = useTheme();
     const [savedVideos, setSavedVideos] = useState([]);
     const [myUploads, setMyUploads] = useState([]);
     const [loadingSaved, setLoadingSaved] = useState(true);
@@ -375,11 +377,15 @@ export default function Profile() {
                         </div>
                         <div className="setting-item">
                             <div className="setting-info">
-                                <span className="setting-icon">🌙</span>
-                                <span>Dark Mode</span>
+                                <span className="setting-icon">{theme === 'dark' ? '🌙' : '☀️'}</span>
+                                <span>{theme === 'dark' ? 'Dark Mode' : 'Light Mode'}</span>
                             </div>
                             <label className="toggle">
-                                <input type="checkbox" defaultChecked />
+                                <input
+                                    type="checkbox"
+                                    checked={theme === 'dark'}
+                                    onChange={toggleTheme}
+                                />
                                 <span className="slider"></span>
                             </label>
                         </div>

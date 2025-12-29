@@ -37,6 +37,10 @@ export default function Videos() {
     const [selectedVideo, setSelectedVideo] = useState(null);
     const [activeCategory, setActiveCategory] = useState('All');
     const [searchQuery, setSearchQuery] = useState('');
+    const [showSuggestions, setShowSuggestions] = useState(false);
+    const [recentSearches, setRecentSearches] = useState(() => {
+        return JSON.parse(localStorage.getItem('recent_searches') || '[]');
+    });
     const { addCoins, coinsEarnedToday } = useCoins();
 
     // Fetch videos from API
@@ -128,20 +132,90 @@ export default function Videos() {
         return videos.filter(v => v.category === cat).length;
     };
 
+    // Search suggestions based on video titles
+    const searchSuggestions = searchQuery.length >= 2
+        ? videos
+            .filter(v => v.title.toLowerCase().includes(searchQuery.toLowerCase()))
+            .slice(0, 5)
+            .map(v => v.title)
+        : [];
+
+    const handleSearch = (query) => {
+        setSearchQuery(query);
+        setShowSuggestions(false);
+
+        if (query.trim() && !recentSearches.includes(query.trim())) {
+            const updated = [query.trim(), ...recentSearches].slice(0, 5);
+            setRecentSearches(updated);
+            localStorage.setItem('recent_searches', JSON.stringify(updated));
+        }
+    };
+
+    const clearSearch = () => {
+        setSearchQuery('');
+        setShowSuggestions(false);
+    };
+
+    const clearRecentSearches = () => {
+        setRecentSearches([]);
+        localStorage.removeItem('recent_searches');
+    };
+
     return (
         <div className="videos-page">
             <div className="videos-content">
                 {/* Search Bar */}
                 <div className="search-section">
                     <div className="search-bar">
+                        <span className="search-icon">🔍</span>
                         <input
                             type="text"
                             placeholder="Search videos..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
+                            onFocus={() => setShowSuggestions(true)}
+                            onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
                         />
-                        <button className="search-btn">🔍</button>
+                        {searchQuery && (
+                            <button className="clear-search" onClick={clearSearch}>✕</button>
+                        )}
                     </div>
+
+                    {/* Search Suggestions Dropdown */}
+                    {showSuggestions && (searchSuggestions.length > 0 || recentSearches.length > 0) && (
+                        <div className="search-dropdown">
+                            {searchSuggestions.length > 0 ? (
+                                <>
+                                    <div className="dropdown-header">Suggestions</div>
+                                    {searchSuggestions.map((suggestion, i) => (
+                                        <button
+                                            key={i}
+                                            className="suggestion-item"
+                                            onClick={() => handleSearch(suggestion)}
+                                        >
+                                            🔍 {suggestion}
+                                        </button>
+                                    ))}
+                                </>
+                            ) : recentSearches.length > 0 && !searchQuery && (
+                                <>
+                                    <div className="dropdown-header">
+                                        Recent Searches
+                                        <button className="clear-recent" onClick={clearRecentSearches}>Clear</button>
+                                    </div>
+                                    {recentSearches.map((search, i) => (
+                                        <button
+                                            key={i}
+                                            className="suggestion-item"
+                                            onClick={() => handleSearch(search)}
+                                        >
+                                            🕐 {search}
+                                        </button>
+                                    ))}
+                                </>
+                            )}
+                        </div>
+                    )}
                 </div>
 
                 {/* Categories */}

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { CoinProvider } from './context/CoinContext';
 import { AuthProvider } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
 import Navbar from './components/layout/Navbar';
 import Sidebar from './components/layout/Sidebar';
 import Home from './pages/Home/Home';
@@ -42,14 +43,17 @@ function MainLayout() {
 
 function App() {
   return (
-    <AuthProvider>
-      <CoinProvider>
-        <Router>
-          <MainLayout />
-        </Router>
-      </CoinProvider>
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <CoinProvider>
+          <Router>
+            <MainLayout />
+          </Router>
+        </CoinProvider>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 
 export default App;
+
