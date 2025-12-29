@@ -1,33 +1,65 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useCoins } from '../../context/CoinContext';
 import VideoCard from '../../components/common/VideoCard';
 import VideoModal from '../../components/common/VideoModal';
 import './Videos.css';
 
-const VIDEOS = [
-    { id: 1, title: "Amazing Nature Documentary - 4K Ultra HD", channel: "Nature World", channelInitial: "N", views: "2.5M", date: "2 days ago", duration: "12:45", coins: 5, thumbnail: "https://picsum.photos/seed/nature1/640/360" },
-    { id: 2, title: "Learn JavaScript in 30 Minutes - Beginner Tutorial", channel: "Code Academy", channelInitial: "C", views: "1.2M", date: "1 week ago", duration: "30:12", coins: 5, thumbnail: "https://picsum.photos/seed/code1/640/360" },
-    { id: 3, title: "Best Gaming Moments 2024 Compilation", channel: "GameZone", channelInitial: "G", views: "5.8M", date: "3 days ago", duration: "18:30", coins: 5, thumbnail: "https://picsum.photos/seed/gaming1/640/360" },
-    { id: 4, title: "Relaxing Music for Study and Focus", channel: "Chill Vibes", channelInitial: "C", views: "10M", date: "1 month ago", duration: "3:00:00", coins: 5, thumbnail: "https://picsum.photos/seed/music1/640/360" },
-    { id: 5, title: "Top 10 Travel Destinations 2024", channel: "Travel Guide", channelInitial: "T", views: "890K", date: "5 days ago", duration: "15:22", coins: 5, thumbnail: "https://picsum.photos/seed/travel1/640/360" },
-    { id: 6, title: "Cooking Masterclass: Italian Pasta", channel: "Chef's Kitchen", channelInitial: "C", views: "3.2M", date: "2 weeks ago", duration: "22:15", coins: 5, thumbnail: "https://picsum.photos/seed/food1/640/360" },
-    { id: 7, title: "SpaceX Starship Launch Highlights", channel: "Space News", channelInitial: "S", views: "8.1M", date: "4 days ago", duration: "8:45", coins: 5, thumbnail: "https://picsum.photos/seed/space1/640/360" },
-    { id: 8, title: "Workout Routine for Beginners - Full Body", channel: "FitLife", channelInitial: "F", views: "4.5M", date: "1 week ago", duration: "25:00", coins: 5, thumbnail: "https://picsum.photos/seed/fitness1/640/360" },
-    { id: 9, title: "AI Revolution: What's Coming in 2025", channel: "Tech Insider", channelInitial: "T", views: "2.1M", date: "6 days ago", duration: "19:30", coins: 5, thumbnail: "https://picsum.photos/seed/tech1/640/360" },
-    { id: 10, title: "Cute Cat Compilation - Try Not to Smile", channel: "Pet Paradise", channelInitial: "P", views: "15M", date: "3 weeks ago", duration: "10:00", coins: 5, thumbnail: "https://picsum.photos/seed/cats1/640/360" },
-    { id: 11, title: "Guitar Tutorial for Absolute Beginners", channel: "Music Lessons", channelInitial: "M", views: "950K", date: "2 weeks ago", duration: "45:00", coins: 5, thumbnail: "https://picsum.photos/seed/guitar1/640/360" },
-    { id: 12, title: "Movie Trailer Breakdown: Upcoming Releases", channel: "Cinema Hub", channelInitial: "C", views: "1.8M", date: "1 day ago", duration: "16:20", coins: 5, thumbnail: "https://picsum.photos/seed/movie1/640/360" },
-];
+const API_URL = 'https://i-backend-nve4.onrender.com/api';
 
 const CATEGORIES = ['All', 'Gaming', 'Music', 'Movies', 'Live', 'Tech', 'Sports', 'News'];
 
 export default function Videos() {
+    const [videos, setVideos] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [selectedVideo, setSelectedVideo] = useState(null);
     const [activeCategory, setActiveCategory] = useState('All');
     const [searchQuery, setSearchQuery] = useState('');
     const { addCoins, coinsEarnedToday } = useCoins();
 
-    const filteredVideos = VIDEOS.filter(video =>
+    // Fetch videos from API
+    useEffect(() => {
+        const fetchVideos = async () => {
+            try {
+                setLoading(true);
+                const response = await fetch(`${API_URL}/files?limit=50`);
+                const data = await response.json();
+
+                if (data.success) {
+                    // Filter only video/image files and format for display
+                    const mediaFiles = data.data
+                        .filter(file =>
+                            file.mimeType?.startsWith('video/') ||
+                            file.mimeType?.startsWith('image/')
+                        )
+                        .map(file => ({
+                            id: file.id,
+                            title: file.name.replace(/\.[^/.]+$/, ''), // Remove extension
+                            channel: 'I_tube Creator',
+                            channelInitial: 'I',
+                            views: Math.floor(Math.random() * 1000) + 'K',
+                            date: formatDate(file.createdTime),
+                            duration: file.mimeType?.startsWith('video/') ? '00:00' : 'Image',
+                            coins: 5,
+                            thumbnail: file.mimeType?.startsWith('image/')
+                                ? `https://drive.google.com/thumbnail?id=${file.id}&sz=w640`
+                                : `https://picsum.photos/seed/${file.id}/640/360`,
+                            webViewLink: file.webViewLink,
+                            mimeType: file.mimeType,
+                        }));
+
+                    setVideos(mediaFiles);
+                }
+            } catch (error) {
+                console.error('Error fetching videos:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchVideos();
+    }, []);
+
+    const filteredVideos = videos.filter(video =>
         video.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         video.channel.toLowerCase().includes(searchQuery.toLowerCase())
     );
@@ -84,16 +116,35 @@ export default function Videos() {
                     </div>
                 </div>
 
+                {/* Loading State */}
+                {loading && (
+                    <div className="loading-state">
+                        <div className="loading-spinner"></div>
+                        <p>Loading videos...</p>
+                    </div>
+                )}
+
+                {/* Empty State */}
+                {!loading && filteredVideos.length === 0 && (
+                    <div className="empty-state">
+                        <div className="empty-icon">📹</div>
+                        <h3>No videos yet</h3>
+                        <p>Upload your first video to get started!</p>
+                    </div>
+                )}
+
                 {/* Video Grid */}
-                <div className="video-grid animate-grid">
-                    {filteredVideos.map(video => (
-                        <VideoCard
-                            key={video.id}
-                            video={video}
-                            onClick={() => handleVideoClick(video)}
-                        />
-                    ))}
-                </div>
+                {!loading && filteredVideos.length > 0 && (
+                    <div className="video-grid animate-grid">
+                        {filteredVideos.map(video => (
+                            <VideoCard
+                                key={video.id}
+                                video={video}
+                                onClick={() => handleVideoClick(video)}
+                            />
+                        ))}
+                    </div>
+                )}
             </div>
 
             {/* Video Modal */}
@@ -106,4 +157,18 @@ export default function Videos() {
             )}
         </div>
     );
+}
+
+function formatDate(dateString) {
+    if (!dateString) return 'Recently';
+    const date = new Date(dateString);
+    const now = new Date();
+    const diff = now - date;
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+
+    if (days === 0) return 'Today';
+    if (days === 1) return 'Yesterday';
+    if (days < 7) return `${days} days ago`;
+    if (days < 30) return `${Math.floor(days / 7)} weeks ago`;
+    return `${Math.floor(days / 30)} months ago`;
 }
