@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import './Upload.css';
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = 'https://i-backend-nve4.onrender.com/api';
 
 export default function Upload() {
     const [file, setFile] = useState(null);
