@@ -4,6 +4,7 @@ import './VideoModal.css';
 // LocalStorage keys
 const getInteractionKey = (videoId) => `video_interactions_${videoId}`;
 const getSavedVideosKey = () => 'saved_videos';
+const getCommentsKey = (videoId) => `video_comments_${videoId}`;
 
 export default function VideoModal({ video, onClose, onEarnCoins }) {
     const [showCoinPopup, setShowCoinPopup] = useState(false);
@@ -17,6 +18,11 @@ export default function VideoModal({ video, onClose, onEarnCoins }) {
     const [userLiked, setUserLiked] = useState(false);
     const [userDisliked, setUserDisliked] = useState(false);
     const [saved, setSaved] = useState(false);
+
+    // Comments states
+    const [comments, setComments] = useState([]);
+    const [newComment, setNewComment] = useState('');
+    const [showComments, setShowComments] = useState(false);
 
     // Load interactions from localStorage
     useEffect(() => {
@@ -38,6 +44,12 @@ export default function VideoModal({ video, onClose, onEarnCoins }) {
         // Check if video is saved
         const savedVideos = JSON.parse(localStorage.getItem(getSavedVideosKey()) || '[]');
         setSaved(savedVideos.includes(video.id));
+
+        // Load comments
+        const storedComments = localStorage.getItem(getCommentsKey(video.id));
+        if (storedComments) {
+            setComments(JSON.parse(storedComments));
+        }
     }, [video.id]);
 
     // Save interactions to localStorage
@@ -48,6 +60,42 @@ export default function VideoModal({ video, onClose, onEarnCoins }) {
             userLiked: liked,
             userDisliked: disliked,
         }));
+    };
+
+    // Comment handlers
+    const handleAddComment = () => {
+        if (!newComment.trim()) return;
+
+        const comment = {
+            id: Date.now(),
+            text: newComment.trim(),
+            author: 'You',
+            avatar: '👤',
+            timestamp: new Date().toISOString(),
+            likes: 0,
+        };
+
+        const updatedComments = [comment, ...comments];
+        setComments(updatedComments);
+        localStorage.setItem(getCommentsKey(video.id), JSON.stringify(updatedComments));
+        setNewComment('');
+    };
+
+    const handleDeleteComment = (commentId) => {
+        const updatedComments = comments.filter(c => c.id !== commentId);
+        setComments(updatedComments);
+        localStorage.setItem(getCommentsKey(video.id), JSON.stringify(updatedComments));
+    };
+
+    const formatTimestamp = (timestamp) => {
+        const diff = Date.now() - new Date(timestamp).getTime();
+        const minutes = Math.floor(diff / 60000);
+        if (minutes < 1) return 'Just now';
+        if (minutes < 60) return `${minutes}m ago`;
+        const hours = Math.floor(minutes / 60);
+        if (hours < 24) return `${hours}h ago`;
+        const days = Math.floor(hours / 24);
+        return `${days}d ago`;
     };
 
     const handleLike = () => {
@@ -241,6 +289,59 @@ export default function VideoModal({ video, onClose, onEarnCoins }) {
                             <span>{saved ? '✅' : '💾'}</span> {saved ? 'Saved' : 'Save'}
                         </button>
                     </div>
+                </div>
+
+                {/* Comments Section */}
+                <div className="comments-section">
+                    <button
+                        className="comments-toggle"
+                        onClick={() => setShowComments(!showComments)}
+                    >
+                        💬 Comments ({comments.length})
+                        <span className={`toggle-arrow ${showComments ? 'open' : ''}`}>▼</span>
+                    </button>
+
+                    {showComments && (
+                        <div className="comments-content">
+                            <div className="add-comment">
+                                <input
+                                    type="text"
+                                    placeholder="Add a comment..."
+                                    value={newComment}
+                                    onChange={(e) => setNewComment(e.target.value)}
+                                    onKeyPress={(e) => e.key === 'Enter' && handleAddComment()}
+                                />
+                                <button onClick={handleAddComment} disabled={!newComment.trim()}>
+                                    Post
+                                </button>
+                            </div>
+
+                            <div className="comments-list">
+                                {comments.length === 0 ? (
+                                    <p className="no-comments">No comments yet. Be the first to comment!</p>
+                                ) : (
+                                    comments.map(comment => (
+                                        <div key={comment.id} className="comment-item">
+                                            <div className="comment-avatar">{comment.avatar}</div>
+                                            <div className="comment-content">
+                                                <div className="comment-header">
+                                                    <span className="comment-author">{comment.author}</span>
+                                                    <span className="comment-time">{formatTimestamp(comment.timestamp)}</span>
+                                                </div>
+                                                <p className="comment-text">{comment.text}</p>
+                                            </div>
+                                            <button
+                                                className="delete-comment"
+                                                onClick={() => handleDeleteComment(comment.id)}
+                                            >
+                                                🗑️
+                                            </button>
+                                        </div>
+                                    ))
+                                )}
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 {/* Share Popup */}
