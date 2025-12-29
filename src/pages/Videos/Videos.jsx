@@ -21,7 +21,9 @@ export default function Videos() {
         const fetchVideos = async () => {
             try {
                 setLoading(true);
-                const response = await fetch(`${API_URL}/files?limit=50`);
+                // Fetch only from MyAppStorage folder
+                const folderId = '1qBOdBEk60VTBpHfEGNX3BeLNFrnfF9ur';
+                const response = await fetch(`${API_URL}/files?folderId=${folderId}&limit=50`);
                 const data = await response.json();
 
                 if (data.success) {
